@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tarea-7</string>
+    <string name="addButtonDescription">Boton para añadir tareas a la lista</string>
 </resources>
