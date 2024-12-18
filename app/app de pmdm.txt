@@ -1,0 +1,29 @@
+app de pmdm
+Comprobar el tema de en horizontal
+cada item el recyclerview tiene que tener los datos que pide y completado pendiente
+
+para editar cuando clicas en el item tiene que salir el dialog sheet de abajo con editar eliminar o amrcar como completado
+
+las tareas ordenadas por asignatura ordenalfabetico
+
+
+Ids
+botón de añadir deberes en mainAactivity -> addButton
+recyclerView de deberes -> RVDeberes
+
+
+
+
+
+para el dialog hayq e hace class "la que sea"  extends dialogfragment
+	piublic dialog on createdialog 
+
+PASOS por orden:
+-crear XML del contenido del dialog de añadir (titulo, descripción, asignatura)
+- crear calse que extienda de dialog fragment y ene l meotdo oncratedialog meter las cosas
+-coger la vista creada ene l paso 1, en el edittext de la fecha usar en onlcick apra abrir un dialog de datepicker
+-inflar vista como pone en los pasos del pdf
+
+recurso array oara el XML de la lista de asignaturas
+
+
