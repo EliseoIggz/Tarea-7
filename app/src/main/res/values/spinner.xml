@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_list">
+        <item>AD</item>
+        <item>DI</item>
+        <item>EIE</item>
+        <item>PMDM</item>
+        <item>PSP</item>
+    </string-array>
+</resources>
