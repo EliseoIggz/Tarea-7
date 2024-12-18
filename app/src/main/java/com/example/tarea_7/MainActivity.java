@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private DeberesAdapter deberesAdapter;
     private ArrayList<Deberes> listaDeberes;
     private Button addButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,42 +75,40 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create();
 
         // Referenciar los campos y el botón del diálogo
-        EditText etNombre = dialogView.findViewById(R.id.et_nombre);
-        EditText etTiempoRiego = dialogView.findViewById(R.id.et_tiempo_riego);
-        Button btnConfirmar = dialogView.findViewById(R.id.btn_confirmar);
+        EditText etTitulo = dialogView.findViewById(R.id.etTitulo);
+        EditText etDescripcion = dialogView.findViewById(R.id.etDescripcion);
+        Spinner spnAsignatura = dialogView.findViewById(R.id.spinnerAsignatura);
+        EditText etFecha = dialogView.findViewById(R.id.etFecha);
+        EditText etHora = dialogView.findViewById(R.id.etHora);
+
+        Button btnConfirmar = dialogView.findViewById(R.id.btnAceptar);
+        Button btnCancelar = dialogView.findViewById(R.id.btnCancelar);
 
         // Configurar el evento del botón confirmar
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nombre = etNombre.getText().toString();
-                String tiempoRiegoStr = etTiempoRiego.getText().toString();
+                String titulo = etTitulo.getText().toString();
+                String descripcion = etDescripcion.getText().toString();
+                String asignatura = spnAsignatura.getSelectedItem().toString();
 
-                if (nombre.isEmpty() || tiempoRiegoStr.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show();
-                    Log.e("ERROR","El nombre y/o el tiempo de riego estan vacíos");
-                } else if (!tiempoRiegoStr.matches("^\\d+$")){ // Logica que comprueba que la cadena solo contenga numeros del inicio al final ( por si acaso, el inputType del textfield esta seteado en number y eso solo permite que se introduzcan numeros)
-                    Toast.makeText(MainActivity.this, "El tiempo solo puede contener números", Toast.LENGTH_SHORT).show();
-                    Log.e("ERROR","El tiempo de riego contiene símbolos o letras");
-                }else {
-                    int tiempoRiego = Integer.parseInt(tiempoRiegoStr);
 
-                    // Crear y agregar la nueva planta
-                    Planta nuevaPlanta = new Planta(nombre, tiempoRiego);
-                    listaPlantas.add(nuevaPlanta);
+                // Crear y agregar la nueva tarea
+                Deberes nuevaTarea = new Deberes();
+                listaDeberes.add(nuevaTarea);
 
-                    // Ordenar el ArrayList según el tiempo de riego
-                    ordenarPlantasPorTiempoRiego();
+                // Ordenar el ArrayList según el tiempo de riego
+                ordenarPlantasPorTiempoRiego();
 
-                    // Notificar al adaptador después de actualizar la lista
-                    plantaAdapter.notifyDataSetChanged();
+                // Notificar al adaptador después de actualizar la lista
+                plantaAdapter.notifyDataSetChanged();
 
-                    // Scroll al inicio si es necesario
-                    recyclerView.scrollToPosition(0);
+                // Scroll al inicio si es necesario
+                recyclerView.scrollToPosition(0);
 
-                    // Cerrar el cuadro de diálogo
-                    dialog.dismiss();
-                }
+                // Cerrar el cuadro de diálogo
+                dialog.dismiss();
+
             }
         });
         // Mostrar el cuadro de diálogo
