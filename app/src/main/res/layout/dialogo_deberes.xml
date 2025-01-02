@@ -73,26 +73,5 @@
             android:textColor="@android:color/holo_green_dark"
             android:textSize="14sp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:gravity="end">
-
-            <Button
-                android:id="@+id/btnCancelar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancelar"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/btnAceptar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Aceptar" />
-        </LinearLayout>
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

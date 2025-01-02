@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -66,98 +67,23 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mostrarDialogoAgregarDeberes();
+                DialogFragment dialogFragment = new Dialogo();
+                dialogFragment.show(getSupportFragmentManager(), "Dialogo tarea");
             }
         });
     }
 
-    private void mostrarDialogoAgregarDeberes() {
-        // Inflar el layout del diálogo
-        LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
-        View dialogView = inflater.inflate(R.layout.dialogo_deberes, null);
+    public void agregarTarea(Deberes nuevaTarea) {
+        // Añadir la nueva tarea a la lista
+        listaDeberes.add(nuevaTarea);
 
-        // Crear el cuadro de diálogo
-        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).setCancelable(true).create();
+        // Ordenar la lista si es necesario
+        ordenarDeberesPorAsignatura();
 
-        // Referenciar los campos y el botón del diálogo
-        EditText etTitulo = dialogView.findViewById(R.id.etTitulo);
-        EditText etDescripcion = dialogView.findViewById(R.id.etDescripcion);
-        Spinner spnAsignatura = dialogView.findViewById(R.id.spinnerAsignatura);
-        EditText etFecha = dialogView.findViewById(R.id.etFecha);
-        EditText etHora = dialogView.findViewById(R.id.etHora);
-        CheckBox cbEstado = dialogView.findViewById(R.id.checkboxEstado);
-
-        Button btnConfirmar = dialogView.findViewById(R.id.btnAceptar);
-        Button btnCancelar = dialogView.findViewById(R.id.btnCancelar);
-
-        // Configurar el Datepicker con su evento al clicar el editText
-        etFecha.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DatePickerDialog datePickerDialog = new DatePickerDialog(
-                MainActivity.this,
-                (viewFecha, year, month, dayOfMonth) -> {
-                    etFecha.setText(dayOfMonth + "-" + (month+1) + "-" + year);
-                },
-                Calendar.getInstance().get(Calendar.YEAR),
-                Calendar.getInstance().get(Calendar.MONTH),
-                Calendar.getInstance().get(Calendar.DAY_OF_MONTH) // Año, Mes, Día Actuales
-                );
-                datePickerDialog.show();
-            }
-        });
-
-        // Configurar el Timepicker con su evento al clicar el editText
-        etHora.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(
-                MainActivity.this,
-                (viewHora, hourOfDay, minute) -> {
-                    etHora.setText(hourOfDay + ":" + minute);
-                },
-                        Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
-                        Calendar.getInstance().get(Calendar.MINUTE),
-                        true // Hora inicial, Minuto inicial, formato 24h
-                );
-                timePickerDialog.show();
-            }
-        });
-
-        // Configurar el evento del botón confirmar
-        btnConfirmar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String titulo = etTitulo.getText().toString();
-                String descripcion = etDescripcion.getText().toString();
-                String asignatura = spnAsignatura.getSelectedItem().toString();
-                String fecha = etFecha.getText().toString();
-                String hora = etHora.getText().toString();
-                Boolean estado = cbEstado.isChecked();
-
-                // Crear y agregar la nueva tarea
-                Deberes nuevaTarea = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
-                listaDeberes.add(nuevaTarea);
-
-                // Ordenar el ArrayList según la asignatura
-                ordenarDeberesPorAsignatura();
-
-                // Notificar al adaptador después de actualizar la lista
-                deberesAdapter.notifyDataSetChanged();
-
-                // Scroll al inicio si es necesario
-                RVD.scrollToPosition(0);
-
-                // Cerrar el cuadro de diálogo
-                dialog.dismiss();
-
-            }
-        });
-        // Mostrar el cuadro de diálogo
-        dialog.show();
+        // Notificar al adaptador que los datos han cambiado
+        deberesAdapter.notifyDataSetChanged();
     }
 
-    // Ordena los elementos de la lista por orden alfabetico segun la asignatura
     private void ordenarDeberesPorAsignatura() {
         Collections.sort(listaDeberes, new java.util.Comparator<Deberes>() {
             @Override

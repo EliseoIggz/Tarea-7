@@ -36,7 +36,7 @@ public class DeberesAdapter extends RecyclerView.Adapter<DeberesAdapter.DeberesV
         holder.asignatura.setText(deber.getAsignatura());
         holder.fecha.setText(deber.getFecha());
         holder.hora.setText(deber.getHora());
-        holder.estado.setText(deber.getEstado());
+        holder.estado.setText(deber.getTitulo());
     }
 
     @Override
