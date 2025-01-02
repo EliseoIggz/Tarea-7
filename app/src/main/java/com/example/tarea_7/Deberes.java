@@ -66,4 +66,12 @@ public class Deberes {
     public void setEstado(boolean estado) {
         this.estado = estado;
     }
+
+    public String getEstado(){
+        if (estado) {
+            return "Completado";
+        }else{
+            return "No completado";
+        }
+    }
 }

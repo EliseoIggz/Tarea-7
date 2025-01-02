@@ -18,19 +18,17 @@
             android:id="@+id/etTitulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Título"
+            android:hint="Título"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/darker_gray" />
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etDescripcion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descripción"
-            android:textSize="20sp"
             android:layout_marginTop="4dp"
-            android:textColor="@android:color/darker_gray" />
+            android:hint="Descripción"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/tvAsignaturaLabel"
@@ -54,19 +52,17 @@
             android:id="@+id/etFecha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fecha"
-            android:textSize="20sp"
             android:layout_marginTop="4dp"
-            android:textColor="@android:color/darker_gray" />
+            android:hint="Fecha"
+            android:textSize="20sp" />
 
         <EditText
             android:id="@+id/etHora"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hora"
-            android:textSize="20sp"
             android:layout_marginTop="4dp"
-            android:textColor="@android:color/darker_gray" />
+            android:hint="Hora"
+            android:textSize="20sp" />
 
         <CheckBox
             android:id="@+id/checkboxEstado"

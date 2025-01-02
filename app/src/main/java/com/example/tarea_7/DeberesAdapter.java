@@ -32,11 +32,11 @@ public class DeberesAdapter extends RecyclerView.Adapter<DeberesAdapter.DeberesV
     public void onBindViewHolder(@NonNull DeberesViewHolder holder, int position) {
         Deberes deber = listaDeberes.get(position);
         holder.titulo.setText(deber.getTitulo());
-        holder.descripcion.setText(deber.getTitulo());
-        holder.asignatura.setText(deber.getTitulo());
-        holder.fecha.setText(deber.getTitulo());
-        holder.hora.setText(deber.getTitulo());
-        holder.estado.setText(deber.getTitulo());
+        holder.descripcion.setText(deber.getDescripcion());
+        holder.asignatura.setText(deber.getAsignatura());
+        holder.fecha.setText(deber.getFecha());
+        holder.hora.setText(deber.getHora());
+        holder.estado.setText(deber.getEstado());
     }
 
     @Override

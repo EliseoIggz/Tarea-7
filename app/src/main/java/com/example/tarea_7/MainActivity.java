@@ -1,14 +1,15 @@
 package com.example.tarea_7;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,14 +19,18 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView RVD;
     private DeberesAdapter deberesAdapter;
     private ArrayList<Deberes> listaDeberes;
-    private Button addButton;
+    private FloatingActionButton addButton;
 
 
     @Override
@@ -44,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         RVD.setHasFixedSize(true);
 
         listaDeberes = new ArrayList<>();
-        //Ejemplo para empezar con una planta la App
+        //Ejemplo para empezar con una tarea asignada
         listaDeberes.add(new Deberes("Trabajo final",
                                 "Hacer lista de deberes",
                                 "PMDM",
@@ -53,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
                                 false));
 
         // Instanciar y setear un adaptador para integrar la vista del item como base de la lista del recyclerView
-        deberesAdapter = new DeberesAdapter(listaDeberes, this); // Pasamos el contexto actual que usaremos en el toast de borrar planta
+        deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar planta
         RVD.setAdapter(deberesAdapter);
-        // Localizamos el boton de añadir plantas
+        // Localizamos el boton de añadir deberes
         addButton = findViewById(R.id.addButton);
         // Configurar el evento de clic del botón agregar
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -80,9 +85,44 @@ public class MainActivity extends AppCompatActivity {
         Spinner spnAsignatura = dialogView.findViewById(R.id.spinnerAsignatura);
         EditText etFecha = dialogView.findViewById(R.id.etFecha);
         EditText etHora = dialogView.findViewById(R.id.etHora);
+        CheckBox cbEstado = dialogView.findViewById(R.id.checkboxEstado);
 
         Button btnConfirmar = dialogView.findViewById(R.id.btnAceptar);
         Button btnCancelar = dialogView.findViewById(R.id.btnCancelar);
+
+        // Configurar el Datepicker con su evento al clicar el editText
+        etFecha.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                MainActivity.this,
+                (viewFecha, year, month, dayOfMonth) -> {
+                    etFecha.setText(dayOfMonth + "-" + (month+1) + "-" + year);
+                },
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH) // Año, Mes, Día Actuales
+                );
+                datePickerDialog.show();
+            }
+        });
+
+        // Configurar el Timepicker con su evento al clicar el editText
+        etHora.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(
+                MainActivity.this,
+                (viewHora, hourOfDay, minute) -> {
+                    etHora.setText(hourOfDay + ":" + minute);
+                },
+                        Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                        Calendar.getInstance().get(Calendar.MINUTE),
+                        true // Hora inicial, Minuto inicial, formato 24h
+                );
+                timePickerDialog.show();
+            }
+        });
 
         // Configurar el evento del botón confirmar
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
@@ -91,20 +131,22 @@ public class MainActivity extends AppCompatActivity {
                 String titulo = etTitulo.getText().toString();
                 String descripcion = etDescripcion.getText().toString();
                 String asignatura = spnAsignatura.getSelectedItem().toString();
-
+                String fecha = etFecha.getText().toString();
+                String hora = etHora.getText().toString();
+                Boolean estado = cbEstado.isChecked();
 
                 // Crear y agregar la nueva tarea
-                Deberes nuevaTarea = new Deberes();
+                Deberes nuevaTarea = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
                 listaDeberes.add(nuevaTarea);
 
-                // Ordenar el ArrayList según el tiempo de riego
-                ordenarPlantasPorTiempoRiego();
+                // Ordenar el ArrayList según la asignatura
+                ordenarDeberesPorAsignatura();
 
                 // Notificar al adaptador después de actualizar la lista
-                plantaAdapter.notifyDataSetChanged();
+                deberesAdapter.notifyDataSetChanged();
 
                 // Scroll al inicio si es necesario
-                recyclerView.scrollToPosition(0);
+                RVD.scrollToPosition(0);
 
                 // Cerrar el cuadro de diálogo
                 dialog.dismiss();
@@ -113,5 +155,15 @@ public class MainActivity extends AppCompatActivity {
         });
         // Mostrar el cuadro de diálogo
         dialog.show();
+    }
+
+    // Ordena los elementos de la lista por orden alfabetico segun la asignatura
+    private void ordenarDeberesPorAsignatura() {
+        Collections.sort(listaDeberes, new java.util.Comparator<Deberes>() {
+            @Override
+            public int compare(Deberes p1, Deberes p2) {
+                return p1.getAsignatura().compareTo(p2.getAsignatura());
+            }
+        });
     }
 }
