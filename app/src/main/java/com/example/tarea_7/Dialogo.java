@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -25,14 +26,14 @@ public class Dialogo extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Construir el diálogo
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialogoTarea = new AlertDialog.Builder(getActivity());
         // Inflar el layout del diálogo con el xml que hemos creado antes
         LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
         View dialogView = layoutInflater.inflate(R.layout.dialogo_deberes, null);
-        builder.setView(dialogView);
+        dialogoTarea.setView(dialogView);
 
         // Establece el título
-        builder.setTitle("Crear tarea");
+        dialogoTarea.setTitle("Tarea");
 
         // Referenciar los campos y el botón del diálogo
         EditText etTitulo = dialogView.findViewById(R.id.etTitulo);
@@ -41,6 +42,24 @@ public class Dialogo extends DialogFragment {
         EditText etFecha = dialogView.findViewById(R.id.etFecha);
         EditText etHora = dialogView.findViewById(R.id.etHora);
         CheckBox cbEstado = dialogView.findViewById(R.id.checkboxEstado);
+
+        Bundle args = getArguments();
+        Deberes tareaSeleccionada = args != null ? args.getParcelable("tareaSeleccionada") : null;
+
+        if (tareaSeleccionada != null) {
+            etTitulo.setText(tareaSeleccionada.getTitulo());
+            etDescripcion.setText(tareaSeleccionada.getDescripcion());
+            // Configurar el Spinner para que tenga la asignatura de tareaSeleccionada
+            String asignatura = tareaSeleccionada.getAsignatura();
+            ArrayAdapter adapter = (ArrayAdapter) spnAsignatura.getAdapter();
+            int position = adapter.getPosition(asignatura);
+            if (position >= 0) { // Asegurarse de que la asignatura existe en el adaptador
+                spnAsignatura.setSelection(position);
+            }
+            etFecha.setText(tareaSeleccionada.getFecha()); // Asume que el formato es correcto (e.g., "YYYY-MM-DD")
+            etHora.setText(tareaSeleccionada.getHora()); // Asume que el formato es correcto (e.g., "HH:MM")
+            cbEstado.setChecked(tareaSeleccionada.isEstado());
+        }
 
         // Configurar el Datepicker con su evento al clicar el editText
         etFecha.setOnClickListener(new View.OnClickListener() {
@@ -78,9 +97,10 @@ public class Dialogo extends DialogFragment {
 
 
         // Añadir botones de aceptar y cancelar
-        builder.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+        dialogoTarea.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
+
                         // Ejecutar al pulsar el botón aceptar
                         String titulo = etTitulo.getText().toString();
                         String descripcion = etDescripcion.getText().toString();
@@ -93,7 +113,13 @@ public class Dialogo extends DialogFragment {
                         Deberes nuevaTarea = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
 
                         //Llamar al método agregarTarea() en MainActivity para agregar la nueva tarea desde el dialog
-                        ((MainActivity) getActivity()).agregarTarea(nuevaTarea);
+                        //((MainActivity) getActivity()).agregarTarea(nuevaTarea);
+                        // Preguntar a Miguel si se puede hacer asi
+
+                        // Crear un Intent y enviar la tarea como Parcelable
+                        Bundle result = new Bundle();
+                        result.putParcelable("nuevaTarea", nuevaTarea);
+                        getParentFragmentManager().setFragmentResult("tareaKey", result);
 
                         // Cerrar el cuadro de diálogo
                         dialog.dismiss();
@@ -109,7 +135,7 @@ public class Dialogo extends DialogFragment {
                 });
 
         // Devuelve el diálogo
-        return builder.create();
+        return dialogoTarea.create();
 
     }
 }

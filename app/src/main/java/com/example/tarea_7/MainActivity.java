@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -71,6 +73,16 @@ public class MainActivity extends AppCompatActivity {
                 dialogFragment.show(getSupportFragmentManager(), "Dialogo tarea");
             }
         });
+
+        // Configurar escucha de resultados del fragmento
+        getSupportFragmentManager().setFragmentResultListener("tareaKey", this, (tareaKey, result) -> {
+            Deberes nuevaTarea = result.getParcelable("nuevaTarea");
+            agregarTarea(nuevaTarea);
+        });
+
+        deberesAdapter.setOnItemClickListener(position -> {
+            showBottomSheetMenu(position);
+        });
     }
 
     public void agregarTarea(Deberes nuevaTarea) {
@@ -91,5 +103,43 @@ public class MainActivity extends AppCompatActivity {
                 return p1.getAsignatura().compareTo(p2.getAsignatura());
             }
         });
+    }
+
+    private void showBottomSheetMenu(int position) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.opciones_dialog, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        TextView modificar = bottomSheetView.findViewById(R.id.modificarTarea);
+        TextView eliminar = bottomSheetView.findViewById(R.id.eliminarTarea);
+        TextView cambiarEstado = bottomSheetView.findViewById(R.id.cambiarEstado);
+
+        modificar.setOnClickListener(v -> {
+            // Cerrar el menu
+            bottomSheetDialog.dismiss();
+            DialogFragment dialogFragment = new Dialogo();
+
+            // Pasar el objeto seleccionado al diálogo
+            Bundle args = new Bundle();
+            args.putParcelable("tareaSeleccionada", listaDeberes.get(position));
+            dialogFragment.setArguments(args);
+
+            dialogFragment.show(getSupportFragmentManager(), "Dialogo tarea");
+        });
+
+        eliminar.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            listaDeberes.remove(position);
+            deberesAdapter.notifyItemRemoved(position);
+        });
+
+        cambiarEstado.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Deberes deber = listaDeberes.get(position);
+            deber.setEstado(!deber.isEstado());
+            deberesAdapter.notifyItemChanged(position);
+        });
+
+        bottomSheetDialog.show();
     }
 }

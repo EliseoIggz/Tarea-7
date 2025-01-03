@@ -14,10 +14,19 @@ public class DeberesAdapter extends RecyclerView.Adapter<DeberesAdapter.DeberesV
 
     private ArrayList<Deberes> listaDeberes;
     //private Context context;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public DeberesAdapter(ArrayList<Deberes> listaDeberes/*, Context context*/) {
         this.listaDeberes = listaDeberes;
-        //this.context = context; // Pasamos el contexto para poder referenciarlo en el toast al borrar la planta
+        //this.context = context; // Pasamos el contexto para poder referenciarlo en el toast al borrar un elemnto
     }
 
     @NonNull
@@ -36,7 +45,11 @@ public class DeberesAdapter extends RecyclerView.Adapter<DeberesAdapter.DeberesV
         holder.asignatura.setText(deber.getAsignatura());
         holder.fecha.setText(deber.getFecha());
         holder.hora.setText(deber.getHora());
-        holder.estado.setText(deber.getTitulo());
+        holder.estado.setText(deber.getEstado());
+
+        holder.itemView.setOnClickListener(v -> {
+            listener.onItemClick(position);
+        });
     }
 
     @Override

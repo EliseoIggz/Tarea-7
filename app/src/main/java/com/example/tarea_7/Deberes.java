@@ -1,8 +1,11 @@
 package com.example.tarea_7;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.time.LocalDateTime;
 
-public class Deberes {
+public class Deberes implements Parcelable {
     private String titulo;
     private String descripcion;
     private String asignatura;
@@ -17,6 +20,43 @@ public class Deberes {
         this.fecha = fecha;
         this.hora = hora;
         this.estado = estado;
+    }
+
+    // Parcelable implementation
+    protected Deberes(Parcel in) {
+        titulo = in.readString();
+        descripcion = in.readString();
+        asignatura = in.readString();
+        fecha = in.readString();
+        hora = in.readString();
+        estado = in.readByte() != 0;
+    }
+
+    public static final Creator<Deberes> CREATOR = new Creator<Deberes>() {
+        @Override
+        public Deberes createFromParcel(Parcel in) {
+            return new Deberes(in);
+        }
+
+        @Override
+        public Deberes[] newArray(int size) {
+            return new Deberes[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(titulo);
+        dest.writeString(descripcion);
+        dest.writeString(asignatura);
+        dest.writeString(fecha);
+        dest.writeString(hora);
+        dest.writeByte((byte) (estado ? 1 : 0));
     }
 
     public String getTitulo() {
