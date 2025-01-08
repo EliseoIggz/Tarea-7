@@ -47,12 +47,13 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Iniciamos el RecyvlerView
         RVD = findViewById(R.id.RVDeberes);
         RVD.setLayoutManager(new LinearLayoutManager(this));
         RVD.setHasFixedSize(true);
 
         listaDeberes = new ArrayList<>();
-        //Ejemplo para empezar con una tarea asignada
+        // Ejemplo para empezar con una tarea asignada
         listaDeberes.add(new Deberes("Trabajo final",
                                 "Hacer lista de deberes",
                                 "PMDM",
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                                 false));
 
         // Instanciar y setear un adaptador para integrar la vista del item como base de la lista del recyclerView
-        deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar planta
+        deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar la tarea
         RVD.setAdapter(deberesAdapter);
         // Localizamos el boton de añadir deberes
         addButton = findViewById(R.id.addButton);
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Creamos un dialogo de la clase Dialogo y lo enseñamos
                 DialogFragment dialogFragment = new Dialogo();
                 dialogFragment.show(getSupportFragmentManager(), "Dialogo tarea");
             }
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             agregarTarea(nuevaTarea);
         });
 
+        // Configurar el listener del click en un item de la lista para abrir el menu
         deberesAdapter.setOnItemClickListener(position -> {
             showBottomSheetMenu(position);
         });
@@ -106,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showBottomSheetMenu(int position) {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        BottomSheetDialog dialogoMenu = new BottomSheetDialog(this);
         View bottomSheetView = getLayoutInflater().inflate(R.layout.opciones_dialog, null);
-        bottomSheetDialog.setContentView(bottomSheetView);
+        dialogoMenu.setContentView(bottomSheetView);
 
         TextView modificar = bottomSheetView.findViewById(R.id.modificarTarea);
         TextView eliminar = bottomSheetView.findViewById(R.id.eliminarTarea);
@@ -116,30 +119,30 @@ public class MainActivity extends AppCompatActivity {
 
         modificar.setOnClickListener(v -> {
             // Cerrar el menu
-            bottomSheetDialog.dismiss();
-            DialogFragment dialogFragment = new Dialogo();
+            dialogoMenu.dismiss();
+            DialogFragment dialogoTarea = new Dialogo();
 
             // Pasar el objeto seleccionado al diálogo
-            Bundle args = new Bundle();
-            args.putParcelable("tareaSeleccionada", listaDeberes.get(position));
-            dialogFragment.setArguments(args);
+            Bundle bundleDatos = new Bundle();
+            bundleDatos.putParcelable("tareaSeleccionada", listaDeberes.get(position));
+            dialogoTarea.setArguments(bundleDatos);
 
-            dialogFragment.show(getSupportFragmentManager(), "Dialogo tarea");
+            dialogoTarea.show(getSupportFragmentManager(), "Dialogo tarea");
         });
 
         eliminar.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
+            dialogoMenu.dismiss();
             listaDeberes.remove(position);
             deberesAdapter.notifyItemRemoved(position);
         });
 
         cambiarEstado.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
+            dialogoMenu.dismiss();
             Deberes deber = listaDeberes.get(position);
             deber.setEstado(!deber.isEstado());
             deberesAdapter.notifyItemChanged(position);
         });
 
-        bottomSheetDialog.show();
+        dialogoMenu.show();
     }
 }
