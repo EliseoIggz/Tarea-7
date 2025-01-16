@@ -21,7 +21,7 @@ public class BD1 extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Crear la tabla
-        String CREATE_TABLE = "CREATE TABLE tareas (" +
+        String CREATE_TABLE = "CREATE TABLE deberes (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "titulo TEXT, " +
                 "descripcion TEXT, " +
@@ -68,7 +68,7 @@ public class BD1 extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Actualizar esquema si es necesario
-        db.execSQL("DROP TABLE IF EXISTS tareas");
+        db.execSQL("DROP TABLE IF EXISTS deberes");
         onCreate(db);
 
     }

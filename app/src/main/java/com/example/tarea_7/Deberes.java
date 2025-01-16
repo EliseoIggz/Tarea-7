@@ -6,6 +6,9 @@ import android.os.Parcelable;
 import java.time.LocalDateTime;
 
 public class Deberes implements Parcelable {
+    private static int contadorID = 0;
+
+    private int id;
     private String titulo;
     private String descripcion;
     private String asignatura;
@@ -14,6 +17,7 @@ public class Deberes implements Parcelable {
     private boolean estado;
 
     public Deberes(String titulo, String descripcion, String asignatura, String fecha, String hora, boolean estado) {
+        this.id = generarID();  // Se asigna un ID único al crear el objeto
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.asignatura = asignatura;
@@ -24,6 +28,7 @@ public class Deberes implements Parcelable {
 
     // Parcelable implementation
     protected Deberes(Parcel in) {
+        id = in.readInt();
         titulo = in.readString();
         descripcion = in.readString();
         asignatura = in.readString();
@@ -51,6 +56,7 @@ public class Deberes implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(titulo);
         dest.writeString(descripcion);
         dest.writeString(asignatura);
@@ -58,6 +64,14 @@ public class Deberes implements Parcelable {
         dest.writeString(hora);
         dest.writeByte((byte) (estado ? 1 : 0));
     }
+
+    private static int generarID() {
+        return ++contadorID;
+    }
+
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
 
     public String getTitulo() {
         return titulo;

@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private DeberesAdapter deberesAdapter;
     private ArrayList<Deberes> listaDeberes;
     private FloatingActionButton addButton;
+    private Deberes deberesVolcado;
 
 
     @Override
@@ -53,14 +55,37 @@ public class MainActivity extends AppCompatActivity {
         RVD.setLayoutManager(new LinearLayoutManager(this));
         RVD.setHasFixedSize(true);
 
+        // Escritura de prueba, borrar despues de la primera ejecucion
+        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+        // Insertar un usuario mediante ContentValues
+        ContentValues valores = new ContentValues();
+        valores.put("titulo", "Examen 1");
+        valores.put("descripcion", "Hacer entregables 4 y 5");
+        valores.put("asignatura", "PMDM");
+        valores.put("fecha", "28-01-2025");
+        valores.put("hora", "09:00");
+        valores.put("estado", 1);
+        bdWrite.insert("deberes", null, valores);
+
         // Leer datos de la BD al iniciar
         SQLiteDatabase bdRead = new BD1(this).getReadableDatabase();
 
-        Cursor cursorRead = bdRead.query("usuarios", new String[]{"nombre"}, "nombre NOT LIKE 'm%'", null, null, null, null);
+        Cursor cursorRead = bdRead.query("deberes", null, null , null, null, null, null);
         if (cursorRead.moveToFirst()) {
             do {
-                String nombre = cursorRead.getString(0);
-                System.out.println(nombre);
+                 int id = cursorRead.getInt(0);
+                 String titulo = cursorRead.getString(1);
+                 String descripcion = cursorRead.getString(2);
+                 String asignatura = cursorRead.getString(3);
+                 String fecha = cursorRead.getString(4);
+                 String hora = cursorRead.getString(5);
+                 boolean estado;
+                 if (cursorRead.getInt(6) == 1){
+                     estado = true;
+                 }else{
+                     estado = false;
+                 }
+                deberesVolcado = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
             } while (cursorRead.moveToNext());
             cursorRead.close();
         }
@@ -68,12 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
         listaDeberes = new ArrayList<>();
         //Ejemplo para empezar con una tarea asignada
-        listaDeberes.add(new Deberes("Trabajo final",
-                                "Hacer lista de deberes",
-                                "PMDM",
-                                "20-12-2024",
-                                "20:00",
-                                false));
+        listaDeberes.add(deberesVolcado);
 
         // Instanciar y setear un adaptador para integrar la vista del item como base de la lista del recyclerView
         deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar planta
