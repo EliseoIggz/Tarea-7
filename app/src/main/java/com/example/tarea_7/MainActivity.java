@@ -3,6 +3,8 @@ package com.example.tarea_7;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +52,19 @@ public class MainActivity extends AppCompatActivity {
         RVD = findViewById(R.id.RVDeberes);
         RVD.setLayoutManager(new LinearLayoutManager(this));
         RVD.setHasFixedSize(true);
+
+        // Leer datos de la BD al iniciar
+        SQLiteDatabase bdRead = new BD1(this).getReadableDatabase();
+
+        Cursor cursorRead = bdRead.query("usuarios", new String[]{"nombre"}, "nombre NOT LIKE 'm%'", null, null, null, null);
+        if (cursorRead.moveToFirst()) {
+            do {
+                String nombre = cursorRead.getString(0);
+                System.out.println(nombre);
+            } while (cursorRead.moveToNext());
+            cursorRead.close();
+        }
+
 
         listaDeberes = new ArrayList<>();
         //Ejemplo para empezar con una tarea asignada

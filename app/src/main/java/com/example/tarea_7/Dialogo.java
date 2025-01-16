@@ -75,6 +75,7 @@ public class Dialogo extends DialogFragment {
                         Calendar.getInstance().get(Calendar.DAY_OF_MONTH) // Año, Mes, Día Actuales
                 );
                 datePickerDialog.show();
+                datePickerDialog.show();
             }
         });
 
