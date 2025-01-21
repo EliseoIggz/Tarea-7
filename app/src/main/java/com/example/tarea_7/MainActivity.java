@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 if (nuevaTarea.getId() > 0) {
                     // La tarea ya existe, actualizarla
                     updateBD(nuevaTarea);
-                    agregarTarea(nuevaTarea);
+                    actualizarTareaEnLista(nuevaTarea);
                 } else {
                     // Es una tarea nueva
                     agregarTarea(nuevaTarea);
@@ -188,6 +188,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         bottomSheetDialog.show();
+    }
+
+    private void actualizarTareaEnLista(Deberes tareaActualizada) {
+        for (int i = 0; i < listaDeberes.size(); i++) {
+            if (listaDeberes.get(i).getId() == tareaActualizada.getId()) {
+                listaDeberes.set(i, tareaActualizada); // Actualizar la tarea
+                deberesAdapter.notifyItemChanged(i); // Notificar al adaptador
+                break;
+            }
+        }
     }
 
     private long writeBD (Deberes tarea){
