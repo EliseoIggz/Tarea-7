@@ -14,6 +14,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -177,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
             deleteBD(listaDeberes.get(position).getId());
             listaDeberes.remove(position);
             deberesAdapter.notifyItemRemoved(position);
+
+            Toast.makeText(this, "Se ha eliminado la tarea: " + listaDeberes.get(position).getTitulo(), Toast.LENGTH_SHORT).show();
         });
 
         cambiarEstado.setOnClickListener(v -> {
