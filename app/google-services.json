@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "110704748772",
+    "project_id": "eliseoiggz-f4761",
+    "storage_bucket": "eliseoiggz-f4761.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110704748772:android:02db2c26336eb49e7724f1",
+        "android_client_info": {
+          "package_name": "com.example.tarea_7"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy489TwHmhtBcwRmdyva5AtiR6FbgKp90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

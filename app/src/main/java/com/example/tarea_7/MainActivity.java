@@ -55,25 +55,27 @@ public class MainActivity extends AppCompatActivity {
         RVD.setLayoutManager(new LinearLayoutManager(this));
         RVD.setHasFixedSize(true);
 
-        // Escritura de prueba, borrar despues de la primera ejecucion
-        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
-        // Insertar un usuario mediante ContentValues
-        ContentValues valores = new ContentValues();
-        valores.put("titulo", "Examen 1");
-        valores.put("descripcion", "Hacer entregables 4 y 5");
-        valores.put("asignatura", "PMDM");
-        valores.put("fecha", "28-01-2025");
-        valores.put("hora", "09:00");
-        valores.put("estado", 1);
-        bdWrite.insert("deberes", null, valores);
+//        // Escritura de prueba, borrar despues de la primera ejecucion
+//        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+//        // Insertar un usuario mediante ContentValues
+//        ContentValues valores = new ContentValues();
+//        valores.put("titulo", "Examen 1");
+//        valores.put("descripcion", "Hacer entregables 4 y 5");
+//        valores.put("asignatura", "PMDM");
+//        valores.put("fecha", "28-01-2025");
+//        valores.put("hora", "09:00");
+//        valores.put("estado", 1);
+//        bdWrite.insert("deberes", null, valores);
 
+        //Ejemplo para empezar con una tarea asignada
+        listaDeberes = new ArrayList<>();
         // Leer datos de la BD al iniciar
         SQLiteDatabase bdRead = new BD1(this).getReadableDatabase();
 
         Cursor cursorRead = bdRead.query("deberes", null, null , null, null, null, null);
         if (cursorRead.moveToFirst()) {
             do {
-                 int id = cursorRead.getInt(0);
+                 long id = cursorRead.getLong(0);
                  String titulo = cursorRead.getString(1);
                  String descripcion = cursorRead.getString(2);
                  String asignatura = cursorRead.getString(3);
@@ -86,14 +88,12 @@ public class MainActivity extends AppCompatActivity {
                      estado = false;
                  }
                 deberesVolcado = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
+                deberesVolcado.setId(id);
+                listaDeberes.add(deberesVolcado);
             } while (cursorRead.moveToNext());
             cursorRead.close();
         }
 
-
-        listaDeberes = new ArrayList<>();
-        //Ejemplo para empezar con una tarea asignada
-        listaDeberes.add(deberesVolcado);
 
         // Instanciar y setear un adaptador para integrar la vista del item como base de la lista del recyclerView
         deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar planta
@@ -112,7 +112,16 @@ public class MainActivity extends AppCompatActivity {
         // Configurar escucha de resultados del fragmento
         getSupportFragmentManager().setFragmentResultListener("tareaKey", this, (tareaKey, result) -> {
             Deberes nuevaTarea = result.getParcelable("nuevaTarea");
-            agregarTarea(nuevaTarea);
+            if (nuevaTarea != null) {
+                if (nuevaTarea.getId() > 0) {
+                    // La tarea ya existe, actualizarla
+                    updateBD(nuevaTarea);
+                    agregarTarea(nuevaTarea);
+                } else {
+                    // Es una tarea nueva
+                    agregarTarea(nuevaTarea);
+                }
+            }
         });
 
         deberesAdapter.setOnItemClickListener(position -> {
@@ -121,12 +130,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void agregarTarea(Deberes nuevaTarea) {
+        // Escribir la tarea en la BD
+        nuevaTarea.setId(writeBD(nuevaTarea));
         // Añadir la nueva tarea a la lista
         listaDeberes.add(nuevaTarea);
-
         // Ordenar la lista si es necesario
         ordenarDeberesPorAsignatura();
-
         // Notificar al adaptador que los datos han cambiado
         deberesAdapter.notifyDataSetChanged();
     }
@@ -164,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
         eliminar.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
+            //Borrar de la BD
+            deleteBD(listaDeberes.get(position).getId());
             listaDeberes.remove(position);
             deberesAdapter.notifyItemRemoved(position);
         });
@@ -171,10 +182,76 @@ public class MainActivity extends AppCompatActivity {
         cambiarEstado.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             Deberes deber = listaDeberes.get(position);
+            changeStatus(deber);
             deber.setEstado(!deber.isEstado());
             deberesAdapter.notifyItemChanged(position);
         });
 
         bottomSheetDialog.show();
+    }
+
+    private long writeBD (Deberes tarea){
+        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+        // Insertar un usuario mediante ContentValues
+        ContentValues valores = new ContentValues();
+        valores.put("titulo", tarea.getTitulo());
+        valores.put("descripcion", tarea.getDescripcion());
+        valores.put("asignatura", tarea.getAsignatura());
+        valores.put("fecha", tarea.getFecha());
+        valores.put("hora", tarea.getHora());
+        if(tarea.isEstado()){
+            valores.put("estado", 1);
+        }else {
+            valores.put("estado", 0);
+        }
+        long id = bdWrite.insert("deberes", null, valores);
+        return id;
+    }
+
+    private void deleteBD(long id) {
+        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+
+        // Condición para eliminar registros (WHERE)
+        String whereClause = "id = ?";
+        String[] whereArgs = { String.valueOf(id) }; // Convertir el ID a cadena
+
+        // Eliminar registros y devolver el número de filas afectadas
+        bdWrite.delete("deberes", whereClause, whereArgs);
+    }
+
+    private void updateBD(Deberes tarea) {
+        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+
+        // Crear los valores a actualizar
+        ContentValues valores = new ContentValues();
+        valores.put("titulo", tarea.getTitulo());
+        valores.put("descripcion", tarea.getDescripcion());
+        valores.put("asignatura", tarea.getAsignatura());
+        valores.put("fecha", tarea.getFecha());
+        valores.put("hora", tarea.getHora());
+        valores.put("estado", tarea.isEstado() ? 1 : 0);
+
+        // Condición para la actualización (WHERE)
+        String whereClause = "id = ?";
+        String[] whereArgs = { String.valueOf(tarea.getId()) };
+        bdWrite.update("deberes", valores, whereClause, whereArgs);
+        // Cerrar la base de datos
+        bdWrite.close();
+    }
+
+    private void changeStatus(Deberes tarea){
+        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+
+        // Condición para editar registros (WHERE)
+        ContentValues valores = new ContentValues();
+        valores.put("estado", !tarea.isEstado() ? 1 : 0);
+
+        String whereClause = "id = ?";
+        String[] whereArgs = { String.valueOf(tarea.getId()) }; // Convertir el ID a cadena
+
+        // Eliminar registros y devolver el número de filas afectadas
+        bdWrite.update("deberes", valores, whereClause, whereArgs);
+        // Cerrar la base de datos
+        bdWrite.close();
     }
 }

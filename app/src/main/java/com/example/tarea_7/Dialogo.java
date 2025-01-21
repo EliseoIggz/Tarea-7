@@ -113,9 +113,9 @@ public class Dialogo extends DialogFragment {
                         // Crear y agregar la nueva tarea
                         Deberes nuevaTarea = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
 
-                        //Llamar al método agregarTarea() en MainActivity para agregar la nueva tarea desde el dialog
-                        //((MainActivity) getActivity()).agregarTarea(nuevaTarea);
-                        // Preguntar a Miguel si se puede hacer asi
+                        if (tareaSeleccionada != null) {
+                            nuevaTarea.setId(tareaSeleccionada.getId()); // Mantener el ID si es una edición
+                        }
 
                         // Crear un Intent y enviar la tarea como Parcelable
                         Bundle result = new Bundle();
@@ -125,8 +125,7 @@ public class Dialogo extends DialogFragment {
                         // Cerrar el cuadro de diálogo
                         dialog.dismiss();
                     }
-                    // Mostrar el cuadro de diálogo
-                    //        dialog.show();
+
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -139,4 +138,5 @@ public class Dialogo extends DialogFragment {
         return dialogoTarea.create();
 
     }
+
 }
