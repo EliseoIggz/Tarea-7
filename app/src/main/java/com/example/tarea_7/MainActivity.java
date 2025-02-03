@@ -164,12 +164,14 @@ public class MainActivity extends AppCompatActivity {
 
         eliminar.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
+            // Titulo obtenido antes de eliminarlo de la lista para que no de error al usarlo en el toast
+            String titulo = listaDeberes.get(position).getTitulo();
             //Borrar de la BD
             deleteBD(listaDeberes.get(position).getId());
             listaDeberes.remove(position);
             deberesAdapter.notifyItemRemoved(position);
 
-            Toast.makeText(this, "Se ha eliminado la tarea: " + listaDeberes.get(position).getTitulo(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Se ha eliminado la tarea: " + titulo, Toast.LENGTH_SHORT).show();
         });
 
         cambiarEstado.setOnClickListener(v -> {
