@@ -29,6 +29,15 @@ public class DeberesAdapter extends RecyclerView.Adapter<DeberesAdapter.DeberesV
         //this.context = context; // Pasamos el contexto para poder referenciarlo en el toast al borrar un elemnto
     }
 
+    public void setListaDeberes(ArrayList<Deberes> lista){
+        listaDeberes = lista;
+        notifyDataSetChanged();
+    }
+
+    public ArrayList<Deberes> getListaDeberes(){
+        return listaDeberes;
+    }
+
     @NonNull
     @Override
     public DeberesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -22,6 +22,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Deberes> listaDeberes;
     private FloatingActionButton addButton;
     private Deberes deberesVolcado;
+    private DeberesViewModel deberesViewModel; // Agregar el ViewModel
 
 
     @Override
@@ -71,33 +73,42 @@ public class MainActivity extends AppCompatActivity {
         //Ejemplo para empezar con una tarea asignada
         listaDeberes = new ArrayList<>();
         // Leer datos de la BD al iniciar
-        SQLiteDatabase bdRead = new BD1(this).getReadableDatabase();
+//        SQLiteDatabase bdRead = new BD1(this).getReadableDatabase();
+//
+//        Cursor cursorRead = bdRead.query("deberes", null, null , null, null, null, null);
+//        if (cursorRead.moveToFirst()) {
+//            do {
+//                 long id = cursorRead.getLong(0);
+//                 String titulo = cursorRead.getString(1);
+//                 String descripcion = cursorRead.getString(2);
+//                 String asignatura = cursorRead.getString(3);
+//                 String fecha = cursorRead.getString(4);
+//                 String hora = cursorRead.getString(5);
+//                 boolean estado;
+//                 if (cursorRead.getInt(6) == 1){
+//                     estado = true;
+//                 }else{
+//                     estado = false;
+//                 }
+//                deberesVolcado = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
+//                deberesVolcado.setId(id);
+//                listaDeberes.add(deberesVolcado);
+//            } while (cursorRead.moveToNext());
+//            cursorRead.close();
+//        }
 
-        Cursor cursorRead = bdRead.query("deberes", null, null , null, null, null, null);
-        if (cursorRead.moveToFirst()) {
-            do {
-                 long id = cursorRead.getLong(0);
-                 String titulo = cursorRead.getString(1);
-                 String descripcion = cursorRead.getString(2);
-                 String asignatura = cursorRead.getString(3);
-                 String fecha = cursorRead.getString(4);
-                 String hora = cursorRead.getString(5);
-                 boolean estado;
-                 if (cursorRead.getInt(6) == 1){
-                     estado = true;
-                 }else{
-                     estado = false;
-                 }
-                deberesVolcado = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
-                deberesVolcado.setId(id);
-                listaDeberes.add(deberesVolcado);
-            } while (cursorRead.moveToNext());
-            cursorRead.close();
-        }
-
+        // Inicializar el ViewModel
+        deberesViewModel = new ViewModelProvider(this).get(DeberesViewModel.class);
+        // Crear el adaptador sin lista inicial
+        deberesAdapter = new DeberesAdapter(new ArrayList<>());
+        // Observar los cambios en la lista de deberes
+        // Observar cambios en la lista
+        deberesViewModel.getListaDeberes().observe(this, listaDeberes -> {
+            deberesAdapter.setListaDeberes(listaDeberes);
+        });
 
         // Instanciar y setear un adaptador para integrar la vista del item como base de la lista del recyclerView
-        deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar planta
+        //deberesAdapter = new DeberesAdapter(listaDeberes); // Pasamos el contexto actual que usaremos en el toast de borrar planta
         RVD.setAdapter(deberesAdapter);
         // Localizamos el boton de añadir deberes
         addButton = findViewById(R.id.addButton);
@@ -114,14 +125,15 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().setFragmentResultListener("tareaKey", this, (tareaKey, result) -> {
             Deberes nuevaTarea = result.getParcelable("nuevaTarea");
             if (nuevaTarea != null) {
-                if (nuevaTarea.getId() > 0) {
-                    // La tarea ya existe, actualizarla
-                    updateBD(nuevaTarea);
-                    actualizarTareaEnLista(nuevaTarea);
-                } else {
-                    // Es una tarea nueva
-                    agregarTarea(nuevaTarea);
-                }
+//                if (nuevaTarea.getId() > 0) {
+//                    // La tarea ya existe, actualizarla
+//                    //updateBD(nuevaTarea);
+//                    actualizarTareaEnLista(nuevaTarea);
+//                } else {
+//                    // Es una tarea nueva
+//                    agregarTarea(nuevaTarea);
+//                }
+                deberesViewModel.agregarDeber(nuevaTarea);
             }
         });
 
@@ -132,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void agregarTarea(Deberes nuevaTarea) {
         // Escribir la tarea en la BD
-        nuevaTarea.setId(writeBD(nuevaTarea));
+        //nuevaTarea.setId(writeBD(nuevaTarea));
         // Añadir la nueva tarea a la lista
         listaDeberes.add(nuevaTarea);
         // Ordenar la lista si es necesario
@@ -173,19 +185,20 @@ public class MainActivity extends AppCompatActivity {
         });
 
         eliminar.setOnClickListener(v -> {
+            String titulo = listaDeberes.get(position).getTitulo();
             bottomSheetDialog.dismiss();
             //Borrar de la BD
-            deleteBD(listaDeberes.get(position).getId());
+            //deleteBD(listaDeberes.get(position).getId());
             listaDeberes.remove(position);
             deberesAdapter.notifyItemRemoved(position);
 
-            Toast.makeText(this, "Se ha eliminado la tarea: " + listaDeberes.get(position).getTitulo(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Se ha eliminado la tarea: " + titulo, Toast.LENGTH_SHORT).show();
         });
 
         cambiarEstado.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             Deberes deber = listaDeberes.get(position);
-            changeStatus(deber);
+            //changeStatus(deber);
             deber.setEstado(!deber.isEstado());
             deberesAdapter.notifyItemChanged(position);
         });
@@ -203,68 +216,68 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private long writeBD (Deberes tarea){
-        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
-        // Insertar un usuario mediante ContentValues
-        ContentValues valores = new ContentValues();
-        valores.put("titulo", tarea.getTitulo());
-        valores.put("descripcion", tarea.getDescripcion());
-        valores.put("asignatura", tarea.getAsignatura());
-        valores.put("fecha", tarea.getFecha());
-        valores.put("hora", tarea.getHora());
-        if(tarea.isEstado()){
-            valores.put("estado", 1);
-        }else {
-            valores.put("estado", 0);
-        }
-        long id = bdWrite.insert("deberes", null, valores);
-        return id;
-    }
-
-    private void deleteBD(long id) {
-        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
-
-        // Condición para eliminar registros (WHERE)
-        String whereClause = "id = ?";
-        String[] whereArgs = { String.valueOf(id) }; // Convertir el ID a cadena
-
-        // Eliminar registros y devolver el número de filas afectadas
-        bdWrite.delete("deberes", whereClause, whereArgs);
-    }
-
-    private void updateBD(Deberes tarea) {
-        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
-
-        // Crear los valores a actualizar
-        ContentValues valores = new ContentValues();
-        valores.put("titulo", tarea.getTitulo());
-        valores.put("descripcion", tarea.getDescripcion());
-        valores.put("asignatura", tarea.getAsignatura());
-        valores.put("fecha", tarea.getFecha());
-        valores.put("hora", tarea.getHora());
-        valores.put("estado", tarea.isEstado() ? 1 : 0);
-
-        // Condición para la actualización (WHERE)
-        String whereClause = "id = ?";
-        String[] whereArgs = { String.valueOf(tarea.getId()) };
-        bdWrite.update("deberes", valores, whereClause, whereArgs);
-        // Cerrar la base de datos
-        bdWrite.close();
-    }
-
-    private void changeStatus(Deberes tarea){
-        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
-
-        // Condición para editar registros (WHERE)
-        ContentValues valores = new ContentValues();
-        valores.put("estado", !tarea.isEstado() ? 1 : 0);
-
-        String whereClause = "id = ?";
-        String[] whereArgs = { String.valueOf(tarea.getId()) }; // Convertir el ID a cadena
-
-        // Eliminar registros y devolver el número de filas afectadas
-        bdWrite.update("deberes", valores, whereClause, whereArgs);
-        // Cerrar la base de datos
-        bdWrite.close();
-    }
+//    private long writeBD (Deberes tarea){
+//        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+//        // Insertar un usuario mediante ContentValues
+//        ContentValues valores = new ContentValues();
+//        valores.put("titulo", tarea.getTitulo());
+//        valores.put("descripcion", tarea.getDescripcion());
+//        valores.put("asignatura", tarea.getAsignatura());
+//        valores.put("fecha", tarea.getFecha());
+//        valores.put("hora", tarea.getHora());
+//        if(tarea.isEstado()){
+//            valores.put("estado", 1);
+//        }else {
+//            valores.put("estado", 0);
+//        }
+//        long id = bdWrite.insert("deberes", null, valores);
+//        return id;
+//    }
+//
+//    private void deleteBD(long id) {
+//        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+//
+//        // Condición para eliminar registros (WHERE)
+//        String whereClause = "id = ?";
+//        String[] whereArgs = { String.valueOf(id) }; // Convertir el ID a cadena
+//
+//        // Eliminar registros y devolver el número de filas afectadas
+//        bdWrite.delete("deberes", whereClause, whereArgs);
+//    }
+//
+//    private void updateBD(Deberes tarea) {
+//        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+//
+//        // Crear los valores a actualizar
+//        ContentValues valores = new ContentValues();
+//        valores.put("titulo", tarea.getTitulo());
+//        valores.put("descripcion", tarea.getDescripcion());
+//        valores.put("asignatura", tarea.getAsignatura());
+//        valores.put("fecha", tarea.getFecha());
+//        valores.put("hora", tarea.getHora());
+//        valores.put("estado", tarea.isEstado() ? 1 : 0);
+//
+//        // Condición para la actualización (WHERE)
+//        String whereClause = "id = ?";
+//        String[] whereArgs = { String.valueOf(tarea.getId()) };
+//        bdWrite.update("deberes", valores, whereClause, whereArgs);
+//        // Cerrar la base de datos
+//        bdWrite.close();
+//    }
+//
+//    private void changeStatus(Deberes tarea){
+//        SQLiteDatabase bdWrite = new BD1(this).getWritableDatabase();
+//
+//        // Condición para editar registros (WHERE)
+//        ContentValues valores = new ContentValues();
+//        valores.put("estado", !tarea.isEstado() ? 1 : 0);
+//
+//        String whereClause = "id = ?";
+//        String[] whereArgs = { String.valueOf(tarea.getId()) }; // Convertir el ID a cadena
+//
+//        // Eliminar registros y devolver el número de filas afectadas
+//        bdWrite.update("deberes", valores, whereClause, whereArgs);
+//        // Cerrar la base de datos
+//        bdWrite.close();
+//    }
 }
