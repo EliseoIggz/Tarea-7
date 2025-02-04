@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 
 public class DeberesViewModel extends ViewModel {
-    private final MutableLiveData<ArrayList<Deberes>> listaDeberes;
+    private MutableLiveData<ArrayList<Deberes>> listaDeberes;
 
     public DeberesViewModel() {
         listaDeberes = new MutableLiveData<>(new ArrayList<>());
