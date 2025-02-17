@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // RecyclerView instanciada
         RVD = findViewById(R.id.RVDeberes);
         RVD.setLayoutManager(new LinearLayoutManager(this));
         RVD.setHasFixedSize(true);
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         // Leer datos de la BD al iniciar
         SQLiteDatabase bdRead = new BD1(this).getReadableDatabase();
 
+        // Parametro: nombre de la tabla
         Cursor cursorRead = bdRead.query("deberes", null, null , null, null, null, null);
         if (cursorRead.moveToFirst()) {
             do {
@@ -78,8 +80,11 @@ public class MainActivity extends AppCompatActivity {
                  }else{
                      estado = false;
                  }
+                 // Objeto de la clase que usamos con las variables en el constructor, en un bucle apra ir añadiendo los items de la BD
                 deberesVolcado = new Deberes(titulo, descripcion, asignatura, fecha, hora, estado);
-                deberesVolcado.setId(id);
+                 // Setear el ID
+                 deberesVolcado.setId(id);
+                 // Aañdimos al array con el que trabajamos en la lista del recyclerview
                 listaDeberes.add(deberesVolcado);
             } while (cursorRead.moveToNext());
             cursorRead.close();
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Configurar escucha de resultados del fragmento
         getSupportFragmentManager().setFragmentResultListener("tareaKey", this, (tareaKey, result) -> {
+            // Obtenemos la nueva tarea del bundle enviado desde el dialogo en abse a la KEY que usamos en el dialogo
             Deberes nuevaTarea = result.getParcelable("nuevaTarea");
             if (nuevaTarea != null) {
                 if (nuevaTarea.getId() > 0) {
@@ -115,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Abrimos un menu pasando la posicion del array al clicar en un item
         deberesAdapter.setOnItemClickListener(position -> {
             showBottomSheetMenu(position);
         });
@@ -140,15 +147,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void showBottomSheetMenu(int position) {
+        // Instanciamos el dialog, inflamos la vista y le seteamos la vista al dialogo
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View bottomSheetView = getLayoutInflater().inflate(R.layout.opciones_dialog, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
+        // Instaciamos las opciones
         TextView modificar = bottomSheetView.findViewById(R.id.modificarTarea);
         TextView eliminar = bottomSheetView.findViewById(R.id.eliminarTarea);
         TextView cambiarEstado = bottomSheetView.findViewById(R.id.cambiarEstado);
 
+        // Configuramos los onClick de cada opcion
         modificar.setOnClickListener(v -> {
             // Cerrar el menu
             bottomSheetDialog.dismiss();
@@ -168,7 +179,9 @@ public class MainActivity extends AppCompatActivity {
             String titulo = listaDeberes.get(position).getTitulo();
             //Borrar de la BD
             deleteBD(listaDeberes.get(position).getId());
+            // Borrar de la lista
             listaDeberes.remove(position);
+            // Notificar al RecyclerView
             deberesAdapter.notifyItemRemoved(position);
 
             Toast.makeText(this, "Se ha eliminado la tarea: " + titulo, Toast.LENGTH_SHORT).show();
